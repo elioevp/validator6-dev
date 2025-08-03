@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "https://validator-v-bwacdteva7e5eugt.eastus-01.azurewebsites.net",
+  baseURL: "https://validator-v-back-dev-b6dccuhpcrenffbm.canadacentral-01.azurewebsites.net",
 });
 
 api.interceptors.response.use(
