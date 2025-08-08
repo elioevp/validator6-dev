@@ -2,7 +2,7 @@
 const blobServiceClient = require('../config/azure');
 
 exports.getDirectories = async (req, res) => {
-  const containerClient = blobServiceClient.getContainerClient('validator2-directorios');
+  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
   try {
     let directories = new Set();
     for await (const blob of containerClient.listBlobsFlat({ prefix: `${req.userId}/` })) {
@@ -19,7 +19,7 @@ exports.getDirectories = async (req, res) => {
 
 exports.createDirectory = async (req, res) => {
   const { directoryName } = req.body;
-  const containerClient = blobServiceClient.getContainerClient('validator2-directorios');
+  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
   const blockBlobClient = containerClient.getBlockBlobClient(`${req.userId}/${directoryName}/.placeholder`);
   try {
     await blockBlobClient.upload("", 0);
@@ -37,7 +37,7 @@ exports.uploadFile = async (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const containerClient = blobServiceClient.getContainerClient('validator2-directorios');
+    const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
     const blockBlobClient = containerClient.getBlockBlobClient(`${req.userId}/${directoryName}/${file.originalname}`);
 
     try {
@@ -50,7 +50,7 @@ exports.uploadFile = async (req, res) => {
 
 exports.getFilesInDirectory = async (req, res) => {
   const { directoryName } = req.params;
-  const containerClient = blobServiceClient.getContainerClient('validator2-directorios');
+  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
   const files = [];
 
   try {
@@ -58,7 +58,7 @@ exports.getFilesInDirectory = async (req, res) => {
       if (blob.name !== `${req.userId}/${directoryName}/.placeholder`) {
         files.push({
           name: blob.name.split('/').pop(),
-          url: `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/validator2-directorios/${blob.name}`,
+          url: `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${process.env.AZURE_STORAGE_CONTAINER_NAME}/${blob.name}`,
         });
       }
     }
@@ -70,7 +70,7 @@ exports.getFilesInDirectory = async (req, res) => {
 
 exports.deleteFile = async (req, res) => {
   const { directoryName, fileName } = req.params;
-  const containerClient = blobServiceClient.getContainerClient('validator2-directorios');
+  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
   const blockBlobClient = containerClient.getBlockBlobClient(`${req.userId}/${directoryName}/${fileName}`);
 
   try {
